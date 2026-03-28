@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wordpine — Journalist-Quality Articles from Your YouTube Videos</title>
+<meta name="description" content="Wordpine turns YouTube videos into journalist-quality articles for creators and businesses. Publication-grade content production.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0f0f;
+    --ink-soft: #3a3a3a;
+    --muted: #888480;
+    --rule: #e4e0da;
+    --bg: #fafaf8;
+    --bg-alt: #f4f2ee;
+    --accent: #1a4a2e;
+    --accent-light: #e8f0eb;
+    --white: #ffffff;
+    --max: 1100px;
+    --serif: 'Playfair Display', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(250,250,248,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .nav-inner {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-family: var(--serif);
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--ink);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+  .logo span { color: var(--accent); }
+  .nav-cta {
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--white);
+    background: var(--accent);
+    padding: 9px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    letter-spacing: 0.01em;
+    transition: opacity 0.2s;
+  }
+  .nav-cta:hover { opacity: 0.85; }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 140px 32px 100px;
+    max-width: var(--max);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .hero-label {
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hero-label::before {
+    content: '';
+    display: block;
+    width: 28px;
+    height: 1px;
+    background: var(--accent);
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(2.4rem, 4vw, 3.4rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    margin-bottom: 24px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .hero-sub {
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    line-height: 1.75;
+    margin-bottom: 36px;
+    max-width: 440px;
+  }
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--white);
+    background: var(--accent);
+    padding: 13px 28px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-ghost {
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .btn-ghost:hover { color: var(--ink); border-color: var(--ink); }
+
+  /* Hero visual */
+  .hero-visual {
+    position: relative;
+  }
+  .article-card {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 28px 28px 24px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    position: relative;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.7s forwards;
+  }
+  .article-card:nth-child(2) {
+    margin-top: -12px;
+    margin-left: 24px;
+    animation-delay: 0.15s;
+  }
+  .article-card:nth-child(3) {
+    margin-top: -12px;
+    margin-left: 48px;
+    animation-delay: 0.3s;
+  }
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .card-tag {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .card-title {
+    font-family: var(--serif);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+  .card-meta {
+    font-size: 0.75rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-dot {
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: var(--muted);
+    display: inline-block;
+  }
+  .card-bar {
+    height: 3px;
+    background: var(--accent-light);
+    border-radius: 2px;
+    margin-top: 14px;
+    overflow: hidden;
+  }
+  .card-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* ── RULE DIVIDER ── */
+  .divider {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 32px;
+    border: none;
+    border-top: 1px solid var(--rule);
+  }
+
+  /* ── HOW IT WORKS ── */
+  .section {
+    padding: 80px 32px;
+    max-width: var(--max);
+    margin: 0 auto;
+  }
+  .section-label {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 1px;
+    background: var(--accent);
+  }
+  .section h2 {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+    margin-bottom: 14px;
+    max-width: 600px;
+  }
+  .section-sub {
+    font-size: 1rem;
+    color: var(--ink-soft);
+    line-height: 1.7;
+    max-width: 520px;
+    margin-bottom: 56px;
+  }
+
+  /* Steps */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .step {
+    background: var(--white);
+    padding: 32px 28px;
+    position: relative;
+  }
+  .step-num {
+    font-family: var(--serif);
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--accent-light);
+    line-height: 1;
+    margin-bottom: 16px;
+    letter-spacing: -0.04em;
+  }
+  .step h3 {
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 10px;
+    line-height: 1.35;
+  }
+  .step p {
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    line-height: 1.65;
+  }
+
+  /* ── WHAT YOU GET ── */
+  .outputs {
+    background: var(--bg-alt);
+    padding: 80px 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .outputs-inner {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+  .outputs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 48px;
+  }
+  .output-card {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 28px 24px;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .output-card:hover {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+  }
+  .output-icon {
+    width: 36px; height: 36px;
+    background: var(--accent-light);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 16px;
+    font-size: 1rem;
+  }
+  .output-card h3 {
+    font-family: var(--serif);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .output-card p {
+    font-size: 0.87rem;
+    color: var(--ink-soft);
+    line-height: 1.65;
+  }
+  .output-style {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--accent);
+    background: var(--accent-light);
+    padding: 3px 8px;
+    border-radius: 3px;
+    margin-top: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── WHO IT'S FOR ── */
+  .audience {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 48px;
+  }
+  .audience-card {
+    background: var(--white);
+    padding: 36px 32px;
+  }
+  .audience-card h3 {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .audience-card p {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+  .audience-check {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.87rem;
+    color: var(--ink-soft);
+  }
+  .check-item::before {
+    content: '✓';
+    color: var(--accent);
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── CTA ── */
+  .cta-section {
+    padding: 80px 32px;
+    max-width: 680px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .cta-section h2 {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  .cta-section p {
+    font-size: 1rem;
+    color: var(--ink-soft);
+    line-height: 1.7;
+    margin-bottom: 36px;
+  }
+  .cta-email-form {
+    display: flex;
+    gap: 10px;
+    max-width: 440px;
+    margin: 0 auto;
+  }
+  .cta-input {
+    flex: 1;
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    color: var(--ink);
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 12px 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .cta-input:focus { border-color: var(--accent); }
+  .cta-input::placeholder { color: var(--muted); }
+  .cta-submit {
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--white);
+    background: var(--accent);
+    border: none;
+    border-radius: 4px;
+    padding: 12px 22px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+  }
+  .cta-submit:hover { opacity: 0.85; }
+  .cta-note {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 12px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--rule);
+    padding: 32px;
+    max-width: var(--max);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .footer-logo {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .footer-logo span { color: var(--accent); }
+  .footer-right {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .footer-right a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .footer-right a:hover { color: var(--ink); }
+
+  /* ── ANIMATIONS ── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .hero {
+      grid-template-columns: 1fr;
+      gap: 48px;
+      padding: 120px 20px 60px;
+    }
+    .hero-visual { display: none; }
+    .steps { grid-template-columns: 1fr; }
+    .outputs-grid { grid-template-columns: 1fr; }
+    .audience { grid-template-columns: 1fr; }
+    .nav-inner { padding: 0 20px; }
+    .section { padding: 60px 20px; }
+    .cta-email-form { flex-direction: column; }
+    footer { padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">Word<span>pine</span></a>
+    <a href="mailto:hello@wordpine.com" class="nav-cta">Get in touch</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section>
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-label">Content Production</div>
+      <h1>We turn YouTube videos into <em>journalist-quality</em> articles.</h1>
+      <p class="hero-sub">
+        Your best videos contain ideas worth reading. We extract the intellectual core, source additional proof points, and produce three publication-ready articles — each one sharper than the original video.
+      </p>
+      <div class="hero-actions">
+        <a href="mailto:hello@wordpine.com" class="btn-primary">Request a sample article</a>
+        <a href="#how-it-works" class="btn-ghost">See how it works</a>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="article-card">
+        <div class="card-tag">NYT Style · How-To</div>
+        <div class="card-title">The Framework Behind Dividend Investing That Most Advisors Never Explain</div>
+        <div class="card-meta">
+          <span>1,240 words</span>
+          <span class="card-dot"></span>
+          <span>5 verified sources</span>
+          <span class="card-dot"></span>
+          <span>Ready to publish</span>
+        </div>
+        <div class="card-bar"><div class="card-bar-fill" style="width:100%"></div></div>
+      </div>
+      <div class="article-card">
+        <div class="card-tag">Atlantic Style · Investigative</div>
+        <div class="card-title">Why Dividend Investing Is Having Its Moment — and What's Actually Driving It</div>
+        <div class="card-meta">
+          <span>1,480 words</span>
+          <span class="card-dot"></span>
+          <span>7 verified sources</span>
+          <span class="card-dot"></span>
+          <span>Ready to publish</span>
+        </div>
+        <div class="card-bar"><div class="card-bar-fill" style="width:100%"></div></div>
+      </div>
+      <div class="article-card">
+        <div class="card-tag">HBR Style · Opinion</div>
+        <div class="card-title">The Case Against Growth Stocks That Nobody in Finance Wants to Make</div>
+        <div class="card-meta">
+          <span>1,100 words</span>
+          <span class="card-dot"></span>
+          <span>4 verified sources</span>
+          <span class="card-dot"></span>
+          <span>Ready to publish</span>
+        </div>
+        <div class="card-bar"><div class="card-bar-fill" style="width:100%"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- HOW IT WORKS -->
+<section class="section fade-in" id="how-it-works">
+  <div class="section-label">The Process</div>
+  <h2>From one video to three publication-ready articles.</h2>
+  <p class="section-sub">
+    Every article is built on a proven structural template from the best journalism in your niche — sourced, verified, and ready to publish under your name.
+  </p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h3>You share a video</h3>
+      <p>Send us the link to your best recent video. We watch it, identify the strongest argument, and determine which publication styles match your topic and audience.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h3>We research and source</h3>
+      <p>We find the proof points, statistics, and expert quotes that strengthen your argument beyond what you knew when filming. Every source verified at a real URL.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h3>You receive three articles</h3>
+      <p>A how-to, an investigative piece, and an opinion article — each one in a distinct publication style, ready to publish on your website, LinkedIn, or pitch to a trade publication.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- WHAT YOU GET -->
+<section class="outputs fade-in">
+  <div class="outputs-inner">
+    <div class="section-label">What You Receive</div>
+    <h2>Three articles. Three audiences. One research session.</h2>
+    <p class="section-sub">
+      Each article serves a different reader and a different purpose. Together they give you complete written coverage of a topic your video addressed in a single format.
+    </p>
+
+    <div class="outputs-grid">
+      <div class="output-card">
+        <div class="output-icon">📋</div>
+        <h3>The How-To Article</h3>
+        <p>A practical guide structured around the framework your video laid out. Built for the reader who needs to act on Monday morning. Ranks for the search queries your audience types.</p>
+        <span class="output-style">NYT · Wired · Fast Company</span>
+      </div>
+      <div class="output-card">
+        <div class="output-icon">🔍</div>
+        <h3>The Investigative Piece</h3>
+        <p>An explainer that contextualises the forces behind your topic. Written for the executive who needs to understand why something is happening, not just what to do about it.</p>
+        <span class="output-style">Atlantic · Economist · MIT Review</span>
+      </div>
+      <div class="output-card">
+        <div class="output-icon">💬</div>
+        <h3>The Opinion Article</h3>
+        <p>Your sharpest claim from the video, built into a fully argued position piece with real evidence. The format that builds authority, earns citations, and gets pitched to publications.</p>
+        <span class="output-style">HBR · WSJ · FT</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO IT'S FOR -->
+<section class="section fade-in" id="who">
+  <div class="section-label">Who We Work With</div>
+  <h2>Built for creators who take their ideas seriously.</h2>
+  <p class="section-sub">
+    We work with YouTube creators and content-driven businesses who want a written presence that matches the quality of what they produce on camera.
+  </p>
+
+  <div class="audience">
+    <div class="audience-card">
+      <h3>YouTube Creators</h3>
+      <p>You invest hours into researching and filming content that disappears from the algorithm within weeks. Your ideas deserve a permanent home.</p>
+      <div class="audience-check">
+        <div class="check-item">50,000 to 500,000 subscribers</div>
+        <div class="check-item">Knowledge-based content — finance, tech, health, business</div>
+        <div class="check-item">No existing written presence or blog</div>
+        <div class="check-item">Ready to reach an audience that reads, not just watches</div>
+      </div>
+    </div>
+    <div class="audience-card">
+      <h3>Businesses and Brands</h3>
+      <p>You have subject matter experts who produce video content but no system for turning that expertise into written assets that rank, get cited, and build authority.</p>
+      <div class="audience-check">
+        <div class="check-item">Video-first content strategy already in place</div>
+        <div class="check-item">Need written thought leadership without a full editorial team</div>
+        <div class="check-item">Want content that passes for human-written every time</div>
+        <div class="check-item">Looking for consistent quality at predictable cost</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CTA -->
+<section class="cta-section fade-in">
+  <div class="section-label" style="justify-content:center">Get Started</div>
+  <h2>Request a free sample article from your best video.</h2>
+  <p>We will produce one article from your best recent video at no cost. If it is not sharper than the original, you owe us nothing and we part as friends.</p>
+  <form class="cta-email-form" onsubmit="handleSubmit(event)">
+    <input type="email" class="cta-input" placeholder="Your email address" required>
+    <button type="submit" class="cta-submit">Request sample</button>
+  </form>
+  <p class="cta-note">Or email us directly at <a href="mailto:hello@wordpine.com" style="color:var(--accent);text-decoration:none;">hello@wordpine.com</a></p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="/" class="footer-logo">Word<span>pine</span></a>
+  <div class="footer-right">
+    &copy; 2026 Wordpine &nbsp;·&nbsp;
+    <a href="mailto:hello@wordpine.com">hello@wordpine.com</a>
+  </div>
+</footer>
+
+<script>
+  // Scroll fade-in
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // Form
+  function handleSubmit(e) {
+    e.preventDefault();
+    const email = e.target.querySelector('input').value;
+    window.location.href = `mailto:hello@wordpine.com?subject=Sample Article Request&body=Hi, I'd like to request a free sample article. My email is ${email}`;
+  }
+</script>
+</body>
+</html>
